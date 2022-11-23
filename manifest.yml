@@ -1,0 +1,68 @@
+type: install
+name: Openfaas
+logo: https://raw.githubusercontent.com/openfaas/faasd/master/docs/media/social.png
+homepage: https://github.com/openfaas/faasd
+description: |
+  We install faasd, a lightweight & portable faas engine.
+
+settings:
+  fields:
+    - name: commitShortSha
+      caption: Commit SHA
+      type: string
+      default: latest
+    - name: dockerRegistryUrl
+      caption: Docker Registry Url
+      type: string
+      required: true
+    - name: dockerUser
+      caption: Docker Username
+      type: string
+      required: true
+    - name: dockerPassword
+      caption: Docker Password
+      type: string
+      inputType: password
+      required: true
+
+nodes:
+  - displayName: faasd
+    count: 1
+    cloudlets: 16
+    nodeGroup: cp
+    nodeType: docker
+    image: jelasticozor/faasd:${settings.commitShortSha}
+    registry:
+      user: ${settings.dockerUser}
+      password: ${settings.dockerPassword}
+      url: ${settings.dockerRegistryUrl}
+skipNodeEmails: true
+
+onInstall:
+  - installFaas
+
+actions:
+  installFaas:
+    - cmd[cp]:
+        - systemctl start containerd
+        - cd /faasd-installation
+        - /usr/local/bin/faasd install
+    - api:
+        - method: environment.file.Read
+          params:
+            nodeGroup: cp
+            path: /var/lib/faasd/secrets/basic-auth-user
+    - setGlobals:
+        FAAS_USER: ${response.body}
+    - api:
+        - method: environment.file.Read
+          params:
+            nodeGroup: cp
+            path: /var/lib/faasd/secrets/basic-auth-password
+    - setGlobals:
+        FAAS_PASSWORD: ${response.body}
+
+success:
+  text: |  
+    **Admin User**: ${globals.FAAS_USER}  
+    **Admin Password**: ${globals.FAAS_PASSWORD}  
