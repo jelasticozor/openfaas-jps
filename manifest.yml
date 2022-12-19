@@ -1,6 +1,7 @@
 type: install
 name: Openfaas
 logo: https://raw.githubusercontent.com/openfaas/faasd/master/docs/media/social.png
+baseUrl: https://raw.githubusercontent.com/jelasticozor/openfaas-jps/main
 homepage: https://github.com/openfaas/faasd
 description: |
   We install faasd, a lightweight & portable faas engine.
@@ -61,6 +62,13 @@ actions:
             path: /var/lib/faasd/secrets/basic-auth-password
     - setGlobals:
         FAAS_PASSWORD: ${response.body}
+  setupDockerAuth:
+    - cmd[cp]:
+        - mkdir /var/lib/faasd/.docker
+        - wget ${baseUrl}/config/.docker/config.json -O /var/lib/faasd/.docker/config.json
+        - sed -i s/DOCKER_REGISTRY_URL/${settings.dockerRegistryUrl}/ /var/lib/faasd/.docker/config.json
+        - CREDENTIALS=$(echo -n "${settings.dockerUser}:${settings.dockerPassword}" | base64)
+        - sed -i s/DOCKER_CREDENTIALS/$CREDENTIALS/ /var/lib/faasd/.docker/config.json
 
 success:
   text: |  
