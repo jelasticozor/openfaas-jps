@@ -12,8 +12,12 @@ settings:
       caption: Commit SHA
       type: string
       default: latest
+    - name: dockerRegistryIP
+      caption: Docker (Hosted) Registry IP
+      type: string
+      required: true
     - name: dockerRegistryUrl
-      caption: Docker Registry Url
+      caption: Docker (Hosted) Registry Url
       type: string
       required: true
     - name: dockerUser
@@ -36,7 +40,8 @@ nodes:
     registry:
       user: ${settings.dockerUser}
       password: ${settings.dockerPassword}
-      url: ${settings.dockerRegistryUrl}
+      # TODO: replace with dockerRegistryUrl when Jelastic has solved their bug
+      url: ${settings.dockerRegistryIP}
 skipNodeEmails: true
 
 onInstall:
