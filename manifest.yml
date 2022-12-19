@@ -62,6 +62,7 @@ actions:
             path: /var/lib/faasd/secrets/basic-auth-password
     - setGlobals:
         FAAS_PASSWORD: ${response.body}
+    - setupDockerAuth
   setupDockerAuth:
     - cmd[cp]:
         - mkdir /var/lib/faasd/.docker
